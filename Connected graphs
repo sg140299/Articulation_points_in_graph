@@ -1,0 +1,73 @@
+#include<bits/stdc++.h>
+#define pb push_back
+#define N 100005
+using namespace std;
+int disc[N],low[N];//these are the discovery and lowest time of a particular node
+int tme=1;//initialize time with 0
+set<int> articu_p; 
+vector<pair<int,int>> bridge;//it represents the edges which acts as bridge
+vector<int> adj[N];
+
+
+void add_edge(int x,int y){
+    //bi-directed graph
+    adj[x].pb(y);
+    adj[y].pb(x);
+}
+void dfs(int cur,int par){
+    int child_count=0;
+    disc[cur]=low[cur]=tme++;//increase the time for next call 
+    for(auto child : adj[cur]){
+     //if child is not visited yet
+            
+        if(disc[child]==0){
+            //inititate a dfs call
+            dfs(child,cur);
+                //increase the child count corr to curr node
+            child_count+=1;
+                //update lowest time values
+            low[cur]=min(low[cur],low[child]);
+                //condition to be fulfilled for articulation point
+                // take root otherwise
+            if(cur !=0 && low[child]>=disc[cur]){
+                articu_p.insert(cur);
+            }
+                //condition to be fulfilled for bridges
+            if(low[child]>disc[cur]){
+                bridge.pb({child,cur});
+            }
+                
+        }
+            // now check for backedge
+        else if(child !=par){
+            low[cur]=min(low[cur],disc[child]);
+        }
+    }
+        // now acccount for root node
+    if(cur==0 && child_count>=2){
+        articu_p.insert(cur);
+    }
+
+}
+
+int main(){
+    add_edge(1,2);
+    add_edge(2,3);
+    add_edge(3,1);
+    add_edge(3,4);
+    add_edge(4,5);
+    dfs(1,-1);
+    cout<<"Articulation points are as follows --->"<<endl;
+    int i=1;
+    for (auto p:articu_p){
+        cout<<"ARTICULATION POINT "<<i<<" : "<<p<<endl;
+        i+=1;
+    }
+    cout<<"BRIDGES IN GIVEN GRAPH ARE AS FOLLOWS ---->"<<endl;
+    int j=1;
+    for(auto p:bridge){
+        cout<<"BRIDGE "<<j<<" : "<<p.first<<" -->>>"<<p.second<<endl;
+        j+=1;
+    }
+return 0;
+}
